@@ -1,0 +1,13 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+.drone-list {
+  margin: 20px;
+}
+
+.drone-card {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 10px 0;
+}
