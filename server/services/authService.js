@@ -17,12 +17,10 @@ passport.use(new GoogleStrategy({
           last_name: profile.displayName,
           username: profile.emails[0].value,
           email: profile.emails[0].value,
-          role: 'member', // TODO: this shouldn't be hardcoded
+          role: 'member',
           google_id: profile.id,
         });
-        console.log('created the user')
       }
-      console.log('logged the user in')
       return done(null, user);
     } catch (err) {
       return done(err, false);

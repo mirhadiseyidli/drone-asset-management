@@ -16,8 +16,8 @@ router.get('/google/callback',
     const refreshToken = generateRefreshToken({ id: user.id, email: user.email, role: user.role });
 
     // Send tokens to the client
-    res.cookie('accessToken', accessToken, { httpOnly: true });
-    res.cookie('refreshToken', refreshToken, { httpOnly: true });
+    res.cookie('accessToken', accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
     res.redirect('http://localhost:3002'); // Redirect to the frontend after successful login
   }
 );
@@ -33,7 +33,7 @@ router.get('/logout', (req, res, next) => {
         return next(err);
       }
       // Clear cookies
-      res.clearCookie('_csrf'); 
+      res.clearCookie('XSRF-TOKEN'); 
       res.clearCookie('accessToken');
       res.clearCookie('refreshToken');
       res.redirect('http://localhost:3002'); // Redirect to the login page after logout

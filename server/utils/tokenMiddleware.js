@@ -2,21 +2,19 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const tokenMiddleware = (req, res, next) => {
-  console.log(req.cookies)
-  const token = req.cookies.refreshToken;
+    const token = req.headers.authorization?.split(' ')[1] || req.cookies.refreshToken;
 
-  if (!token) {
-    return res.status(401).json({ message: 'Unauthorized. No token was provided' });
-  }
+    if (!token) {
+        return res.status(401).json({ message: 'Unauthorized. No token was provided' });
+    }
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_API_SECRET); // Temporarily uses the same Secret
-    req.user = decoded;
-    console.log('this works')
-    next();
-  } catch (error) {
-    return res.status(401).json({ message: 'Unauthorized' + error });
-  }
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+        req.user = decoded;
+        next();
+    } catch (error) {
+        return res.status(401).json({ message: 'Unauthorized ahahhah' + error });
+    }
 };
 
 module.exports = { tokenMiddleware };

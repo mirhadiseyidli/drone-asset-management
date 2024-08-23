@@ -2,13 +2,13 @@ require('./services/authService');
 require('./database/connection');
 require('dotenv').config();
 
-const MongoStore = require('connect-mongo');
-
 const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
-const csrf = require('csurf');
 const cookieParser = require('cookie-parser');
+
+const MongoStore = require('connect-mongo');
+const csrf = require('csrf'); // Import the csrf library
 
 const passport = require('passport');
 const authRoutes = require('./routes/authRoutes');
@@ -17,6 +17,7 @@ const droneRoutes = require('./routes/droneRoutes');
 const userRoutes = require('./routes/userRoutes');
 
 const app = express();
+const csrfTokens = new csrf(); // Initialize a new CSRF instance
 
 app.use(cors({
   origin: 'http://localhost:3002',
@@ -36,19 +37,34 @@ app.use(session({
   }),
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', // Send only over HTTPS in production, still need to figure out how to implement SSL Cert stuff
+    secure: process.env.NODE_ENV === 'production',
     maxAge: 1000 * 60 * 60 * 24 * 7, // 1 Week
   },
 }));
 
-const csrfProtection = csrf({ cookie: true, sessionKey: 'Session Cookie' });
-app.use(csrfProtection);
+// Middleware to generate CSRF secret and token
+app.use((req, res, next) => {
+  if (!req.session.csrfSecret) {
+    req.session.csrfSecret = csrfTokens.secretSync();
+  }
+  res.locals.csrfToken = csrfTokens.create(req.session.csrfSecret);
+  next();
+});
+
+// Middleware to validate CSRF token
+const csrfProtection = (req, res, next) => {
+  const token = req.cookies['XSRF-TOKEN'] || req.headers['x-xsrf-token'] || req.body._csrf || req.query._csrf;
+  if (!csrfTokens.verify(req.session.csrfSecret, token)) {
+    return res.status(403).json({ message: 'Invalid CSRF token' });
+  }
+  next();
+};
 
 app.use(passport.initialize());
 app.use(passport.session());
 
 app.get('/api/csrf-token', (req, res) => {
-  const csrfToken = req.csrfToken();
+  const csrfToken = res.locals.csrfToken;
   res.cookie('XSRF-TOKEN', csrfToken, { httpOnly: true });
   res.json({ csrfToken });
 });
@@ -61,10 +77,10 @@ app.get('/api/check-auth', csrfProtection, (req, res) => {
   }
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/token', tokenRoutes);
-app.use('/api/drones', droneRoutes);
-app.use('/api/users', userRoutes);
+app.use('/api/auth', csrfProtection, authRoutes);
+app.use('/api/token', csrfProtection, tokenRoutes);
+app.use('/api/drones', csrfProtection, droneRoutes);
+app.use('/api/users', csrfProtection, userRoutes);
 
 const PORT = process.env.PORT || 5002;
 app.listen(PORT, () => {

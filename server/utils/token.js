@@ -6,7 +6,7 @@ function generateAccessToken(user) {
 }
 
 function generateRefreshToken(user) {
-  return jwt.sign(user, process.env.JWT_API_SECRET, { expiresIn: '7d' }); // long-lived token NOTE: Temporarily uses the same Secret
+  return jwt.sign(user, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
 }
 
 module.exports = { generateAccessToken, generateRefreshToken };
