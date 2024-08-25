@@ -19,9 +19,10 @@ const droneSchema = new mongoose.Schema({
     required: true,
     enum: ['in stock', 'in use', 'available', 'unavailable'],
   },
-  assignedTo: {
+  assigned_to: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
+    default: null,
   },
   sales_order: {
     type: String,

@@ -1,8 +1,8 @@
 const Drone = require('../database/schemas/droneSchema');
 
 const getDrones = async (req, res) => {
+  console.log(req.user)
   const drones = await Drone.find();
-  console.log(drones);
   res.status(200).json(drones);
 };
 
@@ -22,13 +22,53 @@ const requestDrone = async (req, res) => {
 };
 
 const createDrone = async (req, res) => {
-  // Create drone logic here
-  const drone = await Drone.create()
+  let user;
+  const { name,
+          asset_type,
+          asset_serial,
+          asset_status,
+          assigned_to,
+          sales_order,
+          cost_center,
+          available_date
+      } = req.body
+  
+  if (assigned_to) {
+    console.log(assigned_to)
+    user = await User.findOne({ email: assigned_to });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+  }
+
+  try {
+    const drone = await Drone.create({ name,
+      asset_type,
+      asset_serial,
+      asset_status,
+      sales_order,
+      cost_center,
+      available_date
+    })
+    if (assigned_to) {
+      drone.assigned_to = user._id;
+    }
+    res.status(201).json(drone);
+  } catch (err) {
+      res.status(400).json({ message: err.message });
+  };
 }
 
 const deleteDrone = async (req, res) => {
   // Delete drone logic here
-  const drone = await Drone.deleteOne()
+  const { asset_serial } = req.body
+
+  try {
+    const drone = await Drone.findOneAndDelete(asset_serial)
+    res.status(200).json(drone);
+  } catch (err) {
+      res.status(400).json({ message: err.message });
+  };
 }
 
 const editDrone = async (req, res) => {
@@ -36,4 +76,4 @@ const editDrone = async (req, res) => {
   const drone = await Drone.findOneAndUpdate()
 }
 
-module.exports = { getDrones, requestDrone };
+module.exports = { getDrones, requestDrone, createDrone, deleteDrone };
