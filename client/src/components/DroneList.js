@@ -5,50 +5,42 @@ import api from '../services/api';
 const DroneList = () => {
   const [drones, setDrones] = useState([]);
 
-  useEffect(() => {
-    const fetchDrones = async () => {
-      try {
-        let response = await api.get('http://localhost:5002/api/drones', {
-          withCredentials: true, // httpOnly cookies
-        });
-        console.log(response)
-        setDrones(response.data);
-      } catch (error) {
-        if (error.response && error.response.status === 401) {
-          // If token is expired it will return Unathorized 401 response and status
-          try {
-            const csrfToken = document.cookie.replace(/(?:(?:^|.*;\s*)_csrf\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-            console.log(csrfToken) // Debugging
-            console.log('Token expired, attempting to refresh token...'); // Debugging
-            const refreshResponse = await api.post('http://localhost:5002/api/token/refresh-token', null, { // NOTE: This is where the issue with CSRF Token happens
-              withCredentials: true, // httpOnly cookies
-              headers: {
-                'X-CSRF-Token': csrfToken, // Include the CSRF token in the headers
-              },
+  const fetchDrones = async () => {
+    try {
+      let response = await api.get('http://localhost:5002/api/drones', {
+        withCredentials: true, // httpOnly cookies
+      });
+      setDrones(response.data);
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        // If token is expired it will return Unathorized 401 response and status
+        try {
+          const refreshResponse = await api.get('http://localhost:5002/api/token/refresh-token', { // NOTE: This is where the issue with CSRF Token happens
+            withCredentials: true, // httpOnly cookies
+          });
+          if (refreshResponse) {
+            // Retry the original request with the new access token
+            const response = await api.get('http://localhost:5002/api/drones', {
+              withCredentials: true, // EhttpOnly cookies
             });
-  
-            if (refreshResponse.data.accessToken) {
-              // Retry the original request with the new access token
-              const response = await api.get('http://localhost:5002/api/drones', {
-                withCredentials: true, // EhttpOnly cookies
-              });
-              setDrones(response.data);
-            } else {
-              // If refresh token is expired sent user to log in page. It will be 1 week just like session cookie so that they expire at the same time
-              console.log('Refresh token expired or invalid. Please log in again.');
-              // Redirect to login page or a pop-up implementation will be below
-              //
-              //
-            }
-          } catch (refreshError) {
-            console.error('Error refreshing token:', refreshError);
+            setDrones(response.data);
+          } else {
+            // If refresh token is expired sent user to log in page. It will be 1 week just like session cookie so that they expire at the same time
+            console.log('Refresh token expired or invalid. Please log in again.');
+            // Redirect to login page or a pop-up implementation will be below
+            // Probably a pop up button to get back to login or auto refresh after notification
+            //
           }
-        } else {
-          console.error('Error fetching drones:', error);
+        } catch (refreshError) {
+          console.error('Error refreshing token:', refreshError);
         }
+      } else {
+        console.error('Error fetching drones:', error);
       }
-    };
-  
+    }
+  };
+
+  useEffect(() => {
     fetchDrones();
   }, []);
 
