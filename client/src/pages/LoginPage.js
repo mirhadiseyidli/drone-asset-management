@@ -2,7 +2,7 @@ import React from 'react';
 
 function LoginPage() {
   const handleLogin = () => {
-    window.location.href = 'http://localhost:5002/api/auth/google';
+    window.location.href = 'http://127.0.0.1:3050/api/auth/google';
   };
 
   return (

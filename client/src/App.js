@@ -13,11 +13,13 @@ function App() {
   const fetchAuthAndCsrf = async () => {
     try {
       // Fetch CSRF token
-      const csrfResponse = await axios.get('http://localhost:5002/api/csrf-token', { withCredentials: true });
+      const csrfResponse = await axios.get('/api/csrf-token', { withCredentials: true });
       setCsrfToken(csrfResponse.data.csrfToken);
 
+      axios.defaults.headers.common['x-xsrf-token'] = csrfResponse.data.csrfToken;
+      
       // Check if user is authenticated
-      const authResponse = await axios.get('http://localhost:5002/api/check-auth', { withCredentials: true });
+      const authResponse = await axios.get('/api/check-auth', { withCredentials: true });
       if (authResponse.data.user) {
         setIsAuthenticated(true);
         console.log('user logged in'); // Seems CSRF token worked here as this part works

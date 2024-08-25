@@ -3,7 +3,7 @@ services:
     container_name: backend
     build: ./server
     environment:
-      - DATABASE_URL=mongodb://mongo:27017/devices
+      - DATABASE_URL=mongodb://mongo:27017
     volumes:
       - ./server:/home/server
       - /home/server/node_modules

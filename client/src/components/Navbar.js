@@ -2,7 +2,7 @@ import React from 'react';
 
 const Navbar = () => {
   const handleLogout = () => {
-    window.location.href = 'http://localhost:5002/api/auth/logout';
+    window.location.href = '/api/auth/logout';
   };
 
   return (

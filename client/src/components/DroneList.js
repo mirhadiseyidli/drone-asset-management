@@ -7,7 +7,7 @@ const DroneList = () => {
 
   const fetchDrones = async () => {
     try {
-      let response = await api.get('http://localhost:5002/api/drones', {
+      let response = await api.get('/api/drones', {
         withCredentials: true, // httpOnly cookies
       });
       setDrones(response.data);
@@ -15,12 +15,12 @@ const DroneList = () => {
       if (error.response && error.response.status === 401) {
         // If token is expired it will return Unathorized 401 response and status
         try {
-          const refreshResponse = await api.get('http://localhost:5002/api/token/refresh-token', { // NOTE: This is where the issue with CSRF Token happens
+          const refreshResponse = await api.get('/api/token/refresh-token', { // NOTE: This is where the issue with CSRF Token happens
             withCredentials: true, // httpOnly cookies
           });
           if (refreshResponse) {
             // Retry the original request with the new access token
-            const response = await api.get('http://localhost:5002/api/drones', {
+            const response = await api.get('/api/drones', {
               withCredentials: true, // EhttpOnly cookies
             });
             setDrones(response.data);

@@ -17,7 +17,7 @@ RUN npm install
 EXPOSE 5000/tcp
 
 # Define environment variable, if needed
-ENV MONGO_URI="mongodb://mongo:27017/devices"
+ENV MONGO_URI="mongodb://mongo:27017"
 
 # The command to run your app using Node.js
 CMD ["node", "server.js"]

@@ -20,7 +20,7 @@ const app = express();
 const csrfTokens = new csrf(); // Initialize a new CSRF instance
 
 app.use(cors({
-  origin: 'http://localhost:3002',
+  origin: 'http://127.0.0.1:3050/',
   credentials: true
 }));
 app.use(express.json());
@@ -32,7 +32,7 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
   store: MongoStore.create({
-    mongoUrl: "mongodb://localhost:27017/",
+    mongoUrl: "mongodb://mongo:27017",
     collectionName: 'sessions',
   }),
   cookie: {
@@ -82,7 +82,7 @@ app.use('/api/token', csrfProtection, tokenRoutes);
 app.use('/api/drones', csrfProtection, droneRoutes);
 app.use('/api/users', csrfProtection, userRoutes);
 
-const PORT = process.env.PORT || 5002;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
