@@ -37,7 +37,7 @@ function App() {
 
   return (
     <Router>
-      <Navbar />
+      {isAuthenticated && <Navbar />}
       <Routes>
         <Route
           path="/"

@@ -44,9 +44,10 @@ const DroneList = () => {
     fetchDrones();
   }, []);
 
-  const handleRequest = async (droneId) => {
+  const handleRequest = async (drone) => {
     try {
-      await api.post(`/drones/request/${droneId}`, null, {
+      console.log(drone)
+      await api.post(`http://localhost:5002/api/drones/request/${drone}`, null, {
         withCredentials: true,
       });
       console.log('Request for drone sent successfully');
@@ -56,11 +57,15 @@ const DroneList = () => {
   };
 
   return (
-    <div className="drone-list">
-      <h2>Available Drones</h2>
-      {drones.map((drone) => (
-        <DroneCard key={drone._id} drone={drone} onRequest={handleRequest} />
-      ))}
+    <div>
+      <div className='drone-list-title'>
+        <h2>Available Drones</h2>
+      </div>
+      <div className="drone-list">
+        {drones.map((drone) => (
+          <DroneCard key={drone._id} drone={drone} onRequest={handleRequest} />
+        ))}
+      </div>
     </div>
   );
 };

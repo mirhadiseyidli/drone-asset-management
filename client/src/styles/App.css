@@ -1,9 +1,157 @@
 body {
   font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0;
+  overflow: hidden;
+}
+
+.login-page-container {
+  display: flex;
+  width: 100%;
+  height: 100vh; /* Full viewport height */
+}
+
+.login-content {
+  width: 40%; /* 40% of the width */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background-color: #ffffff; /* Optional background color */
+}
+
+.login-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60%;
+  width: 80%; /* Make the card smaller within the 40% area */
+  padding: 40px;
+  box-sizing: border-box;
+  background: linear-gradient(145deg, #ffffff, #00a2ff); /* 3D gradient background */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Add shadow for 3D effect */
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  z-index: 2; /* Ensure the card is above the blurred background */
+}
+
+.login-card-container h1,
+.login-card-container h3 {
+  text-align: center;
+}
+
+.image-container {
+  width: 60%; /* 60% of the width */
+  height: 100%; /* Full height */
+  overflow: hidden;
+  z-index: 1; /* Behind the login card */
+}
+
+.login-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Make sure the image covers the container */
+}
+
+.skydio-logo {
+  position: absolute;
+  top: 30px; /* Adjust the position to overlap the card */
+  left: 50px; /* Center the logo horizontally within the card */
+  width: 100px;
+  height: 100px;
+  background-color: white; /* Optional background color behind the logo */
+  padding: 5px;
+}
+
+.url-login {
+  position: absolute;
+  bottom: 20px;
+  left: 50px;
+  margin-top: 20px;
+  text-align: left;
+  font-size: 14px;
+  color: #888;
+}
+
+.login-card-container {
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
+  justify-content: center;
+  align-items: center;
+  width: 100%; /* Ensure full width usage for centering */
+}
+
+.login-card-container button {
+  display: flex;
+  padding: 10px 20px;
+  font-size: 18px;
+  cursor: pointer;
+  color: black;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid black;
+  margin-top: 20px;
+}
+
+.google-logo {
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+}
+
+.login-card-container button:hover {
+  background-color: rgb(218, 218, 218);
+}
+
+.login-card-container button:active {
+  background-color: rgb(147, 147, 147);
+}
+
+.navbar {
+  display: flex;
+  align-items: center;  /* Vertically centers the items */
+  justify-content: space-between; /* Distributes space between the items */
+  padding: 10px;  /* Optional padding for spacing */
+}
+
+.navbar-app-name {
+  flex-grow: 1;  /* Makes the name take up available space */
+  text-align: center;  /* Centers the text horizontally */
+  margin: 0;  /* Removes default margins */
+}
+
+.skydio-navbar-logo {
+  width: 50px;
+  height: 50px;
+}
+
+.drone-list-title h2 {
+  padding: 20px;
+  display: flex;
+}
+
+.drone-card-image {
+  display: flex;
+  height: 200px;
+  width: 200px;
 }
 
 .drone-list {
-  margin: 20px;
+  display: flex;
+  padding: 20px;
+  flex-direction: row;
+  gap: 16px;
 }
 
 .drone-card {

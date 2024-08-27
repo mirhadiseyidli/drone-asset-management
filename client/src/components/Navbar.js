@@ -1,4 +1,5 @@
 import React from 'react';
+import logo from '../styles/images/logo.png'
 
 const Navbar = () => {
   const handleLogout = () => {
@@ -7,8 +8,15 @@ const Navbar = () => {
 
   return (
     <nav className="navbar">
-      <h1>Drone Asset Management</h1>
+      <div>
+        <img src={logo} className="skydio-navbar-logo" />
+      </div>
+      <div>
+        <h1 className='navbar-app-name'>Drone Asset Management</h1>
+      </div>
+      <div>
       <button onClick={handleLogout}>Logout</button>
+      </div>
     </nav>
   );
 };

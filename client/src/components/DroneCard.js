@@ -1,4 +1,5 @@
 import React from 'react';
+import skydioX10Image from '../styles/images/skydioX10d.png';
 
 const DroneCard = ({ drone, onRequest }) => {
   const handleRequest = () => {
@@ -7,10 +8,11 @@ const DroneCard = ({ drone, onRequest }) => {
 
   return (
     <div className="drone-card">
+      <img src={skydioX10Image} alt={`${drone.name}`} className="drone-card-image" />
       <h3>{drone.name}</h3>
-      <p>Status: {drone.status}</p>
+      <p>Status: {drone.asset_status}</p>
       <button onClick={handleRequest}>
-        {drone.assignedTo ? 'Request Approval' : 'Submit Ticket'}
+        {'View Details'}
       </button>
     </div>
   );

@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "@slack/interactive-messages": "^2.0.2",
+    "@slack/web-api": "^7.3.4",
     "connect-mongo": "^5.1.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
