@@ -1,6 +1,7 @@
 const Drone = require('../database/schemas/droneSchema');
 const User = require('../database/schemas/userSchema');
 const slackActions = require('../utils/slackActions');
+
 const crypto = require('crypto');
 
 const getDrones = async (req, res) => {
@@ -13,7 +14,7 @@ const getDrones = async (req, res) => {
 };
 
 const requestDrone = async (req, res) => {
-  const { id } = req.params.id;
+  const { id } = req.params;
   const drone = await Drone.findOne({ id: id }).populate('assigned_to');
   const requestingUser = await User.findOne({ google_id: req.user.id})
   console.log(requestingUser)
@@ -28,6 +29,9 @@ const requestDrone = async (req, res) => {
           const channelId = await slackActions.createChannel(channelName);
           await slackActions.inviteUsersToChannel(channelId, [requesting_user_slack_id, assigned_user_slack_id]);
           await slackActions.postApprovalMessage(channelId, requestingUser, id);
+          drone.approval_requested = true;
+          drone.approval_requester = requestingUser._id;
+          await drone.save();
 
           res.status(200).json({ message: 'Approval request submitted' });
       } catch (error) {
@@ -44,7 +48,7 @@ const requestDrone = async (req, res) => {
 
 const createDrone = async (req, res) => {
   try {
-    const { assigned_to, ...droneData } = req.body;
+    const { assigned_to, ...droneData } = req.params;
 
     let user;
 
@@ -66,8 +70,7 @@ const createDrone = async (req, res) => {
 };
 
 const deleteDrone = async (req, res) => {
-  // Delete drone logic here
-  const { id } = req.body
+  const { id } = req.params
 
   try {
     const drone = await Drone.findOneAndDelete({ _id: id })
@@ -79,7 +82,7 @@ const deleteDrone = async (req, res) => {
 
 const editDrone = async (req, res) => {
   const { id } = req.params;
-  const updateFields = req.body;
+  const updateFields = req.params;
 
   try {
     const drone = await Drone.findOneAndUpdate(

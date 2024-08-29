@@ -35,6 +35,15 @@ const droneSchema = new mongoose.Schema({
   available_date: {
     type: Date,
     required: true,
+  },
+  approval_requested: {
+    type: Boolean,
+    required: false,
+  },
+  approval_requester: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null,
   }
 });
 
