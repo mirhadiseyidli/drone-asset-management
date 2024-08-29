@@ -57,7 +57,7 @@ const DroneList = () => {
   };
 
   return (
-    <div>
+    <div className='drone-list-container'>
       <div className='drone-list-title'>
         <h2>Available Drones</h2>
       </div>

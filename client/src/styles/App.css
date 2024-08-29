@@ -141,6 +141,11 @@ body {
   display: flex;
 }
 
+.drone-list-container {
+  height: 90vh;
+  width: 90vh;
+}
+
 .drone-card-image {
   display: flex;
   height: 200px;

@@ -5,6 +5,7 @@ import DroneList from './components/DroneList';
 import Navbar from './components/Navbar';
 import axios from 'axios';
 import './styles/App.css'
+import HomePage from './pages/HomePage';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -42,7 +43,7 @@ function App() {
         <Route
           path="/"
           element={
-            isAuthenticated ? <DroneList /> : <Navigate to="/login" replace />
+            isAuthenticated ? <HomePage /> : <Navigate to="/login" replace />
           }
         />
         <Route
