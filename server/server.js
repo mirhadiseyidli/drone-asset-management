@@ -20,7 +20,7 @@ const app = express();
 const csrfTokens = new csrf(); // Initialize a new CSRF instance
 
 app.use(cors({
-  origin: 'http://127.0.0.1:3050/',
+  origin: 'http://frontend:80',
   credentials: true
 }));
 app.use(express.json());

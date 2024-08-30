@@ -18,7 +18,7 @@ router.get('/google/callback',
     // Send tokens to the client
     res.cookie('accessToken', accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
     res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
-    res.redirect('http://127.0.0.1:3050/'); // Redirect to the frontend after successful login
+    res.redirect('/'); // Redirect to the frontend after successful login
   }
 );
 
@@ -36,7 +36,7 @@ router.get('/logout', (req, res, next) => {
       res.clearCookie('XSRF-TOKEN'); 
       res.clearCookie('accessToken');
       res.clearCookie('refreshToken');
-      res.redirect('http://127.0.0.1:3050/'); // Redirect to the login page after logout
+      res.redirect('/'); // Redirect to the login page after logout
     });
   });
 });
