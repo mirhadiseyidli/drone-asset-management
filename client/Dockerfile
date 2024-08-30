@@ -13,8 +13,8 @@ COPY . /client
 # Build the React application
 RUN npm install
 # RUN npm install -g serve
-RUN npm run build
-
+RUN npm run build && echo "React build completed"
+RUN echo "Production stage setup completed"
 # Make port 5000 available to the world outside this container
 # EXPOSE 3000/tcp
 
@@ -24,5 +24,6 @@ RUN npm run build
 # Production stage
 FROM nginx:latest
 COPY --from=builder /client/build /usr/share/nginx/html
+RUN echo "Production stage setup completed"
 EXPOSE 80/tcp
 CMD ["nginx", "-g", "daemon off;"]
