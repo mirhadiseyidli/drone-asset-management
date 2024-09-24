@@ -80,7 +80,7 @@ app.get('/api/check-auth', csrfProtection, (req, res) => {
 app.use('/api/auth', csrfProtection, authRoutes);
 app.use('/api/token', csrfProtection, tokenRoutes);
 app.use('/api/drones', csrfProtection, droneRoutes);
-app.use('/api/users', csrfProtection, userRoutes);
+app.use('/api/users', userRoutes);
 
 const PORT = process.env.PORT || 5002;
 app.listen(PORT, () => {

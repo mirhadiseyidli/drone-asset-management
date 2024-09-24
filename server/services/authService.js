@@ -10,15 +10,17 @@ passport.use(new GoogleStrategy({
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
+      console.log(profile.photos[0].value)
       let user = await User.findOne({ google_id: profile.id });
       if (!user) {
         user = await User.create({
-          first_name: profile.displayName,
-          last_name: profile.displayName,
+          first_name: profile.name.givenName,
+          last_name: profile.name.familyName,
           username: profile.emails[0].value,
           email: profile.emails[0].value,
-          // role: 'member',
+          role: 'member',
           google_id: profile.id,
+          profile_picture: profile.photos[0].value,
         });
       }
       return done(null, user);

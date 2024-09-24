@@ -12,8 +12,9 @@ router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/login', session: true }),
   (req, res) => {
     const user = req.user;
-    const accessToken = generateAccessToken({ id: user.google_id, email: user.email, role: user.role });
-    const refreshToken = generateRefreshToken({ id: user.id, email: user.email, role: user.role });
+    console.log(user)
+    const accessToken = generateAccessToken({ _id: user._id, google_id: user.google_id, email: user.email, role: user.role });
+    const refreshToken = generateRefreshToken({ _id: user._id, google_id: user.id, email: user.email, role: user.role });
 
     // Send tokens to the client
     res.cookie('accessToken', accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });

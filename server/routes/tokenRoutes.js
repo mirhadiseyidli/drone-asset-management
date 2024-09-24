@@ -17,9 +17,8 @@ router.get('/refresh-token', tokenMiddleware, (req, res) => {
         if (err) {
             return res.status(403).json({ message: 'Invalid refresh token' });
         }
-
         // Generate a new access token
-        const newAccessToken = generateAccessToken({ id: user.google_id, email: user.email, role: user.role });
+        const newAccessToken = generateAccessToken({ _id: user._id, google_id: user.google_id, email: user.email, role: user.role });
         res.cookie('accessToken', newAccessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production' }); // Send access token in a cookie
         res.end();
     });

@@ -17,7 +17,7 @@ const droneSchema = new mongoose.Schema({
   asset_status: {
     type: String,
     required: true,
-    enum: ['in stock', 'in use', 'available', 'unavailable'],
+    enum: ['In Stock', 'In Use', 'Available', 'Unavailable'],
   },
   assigned_to: {
     type: mongoose.Schema.Types.ObjectId,
@@ -32,6 +32,10 @@ const droneSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  assignment_date: {
+    type: Date,
+    required: true,
+  },
   available_date: {
     type: Date,
     required: true,
@@ -44,7 +48,11 @@ const droneSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     default: null,
-  }
+  },
+  drone_value: {
+    type: Number,
+    required: true,
+  },
 });
 
 module.exports = mongoose.model('Drone', droneSchema);
