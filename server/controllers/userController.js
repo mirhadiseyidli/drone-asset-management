@@ -7,8 +7,7 @@ const crypto = require('crypto');
 
 const getUserProfile = async (req, res) => {
   try {
-    const user = await User.findOne({ _id: req.user.id }).select('-password');
-    res.status(200).json(user);
+    res.status(200).json(res.user);
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
@@ -23,15 +22,15 @@ const getUsers = async (req, res) => {
   }
 };
 
-const deleteUsers = async (req, res) => {
+const deleteUsers = (getUser, async (req, res) => {
   let user;
   try {
-    user = await User.findByIdAndDelete({ _id: user._id }).select('-password');
-    res.status(200).json('Deleted the user: ' + user);
+    user = await User.deleteOne({ _id: res.user.id }).select('-password');
+    res.status(200).json('Deleted the user');
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
-};
+});
 
 const editUser = async (req, res) => {
   const { id } = req.params;
@@ -64,6 +63,20 @@ const createUser = async (req, res) => {
   } catch (err) {
     res.status(400).json({ message: err.message });
   };
+};
+
+const findMe = async (req, res) => {
+  console.log('this')
+  try {
+      const userId = req.user._id;
+      const user = await User.findById(userId);
+      if (!user) {
+          return res.status(404).json({ message: 'User not found ahahhahah' });
+      }
+      res.json(user);
+  } catch (error) {
+      res.status(500).json({ message: 'Server error' });
+  }
 };
 
 const getClientId = async (req, res) => {
@@ -109,6 +122,22 @@ function generateClientSecret(user) {
   return jwt.sign(user, process.env.JWT_CLIENT_SECRET, { expiresIn: null }); // Generates a 30-character secret
 };
 
+async function getUser(req, res, next) {
+  console.log(req.params)
+  let found_user;
+  try {
+    found_user = await User.findOne({ _id: req.params.id }).select('-password');
+    if (found_user == null) {
+      return res.status(404).json({ message: 'Cannot find the user' });
+    };
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  };
+
+  res.user = found_user;
+  next();
+};
+
 module.exports = { 
   getUserProfile,
   getUsers,
@@ -116,5 +145,7 @@ module.exports = {
   editUser,
   createUser,
   getClientId,
-  getClientSecret
+  getClientSecret,
+  findMe,
+  getUser,
 };

@@ -2,7 +2,8 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const authMiddleware = (req, res, next) => {
-  // console.log(req.cookies)
+  
+  console.log(req.cookies)
   const token = req.headers.authorization?.split(' ')[1] || req.cookies.accessToken;
   if (!token) {
     return res.status(401).json({ message: 'Unauthorized. No token was provided' });
@@ -20,7 +21,7 @@ const authMiddleware = (req, res, next) => {
 const checkRole = (roles) => async (req, res, next) => {
   try {
     if (roles.includes(req.user.role)) {
-      return next();
+      next();
     } else {
       return res.status(403).json({ message: 'Permission denied' });
     }

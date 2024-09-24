@@ -33,7 +33,11 @@ const userSchema = new mongoose.Schema({
   google_id: {
     type: String,
     required: true,
-  }
+  },
+  profile_picture: {
+    type: String,
+    required: false,
+  },
 });
 
 module.exports = mongoose.model('User', userSchema);

@@ -1,15 +1,16 @@
 const express = require('express');
-const { getUserProfile, getUsers, deleteUsers, editUser, createUser, getClientId, getClientSecret } = require('../controllers/userController');
+const { getUserProfile, getUsers, deleteUsers, editUser, createUser, getClientId, getClientSecret, findMe, getUser } = require('../controllers/userController');
 const { authMiddleware, checkRole } = require('../utils/authMiddleware');
 
 const router = express.Router();
 
+router.get('/me', authMiddleware, checkRole(["admin", "member"]), findMe);
 router.get('/', authMiddleware, checkRole(["admin", "member"]), getUsers);
-router.get('/:email', authMiddleware, checkRole(["admin", "member"]), getUserProfile);
-router.delete('/:id', authMiddleware, checkRole(["admin"]), deleteUsers);
+router.get('/:id', authMiddleware, checkRole(["admin", "member"]), getUser, getUserProfile);
+router.delete('/:id', authMiddleware, checkRole(["admin", "member"]), getUser, deleteUsers);
 router.get('/:id', authMiddleware, checkRole(["admin"]), editUser);
-router.get('/', authMiddleware, checkRole(["admin"]), createUser);
-router.get('/', authMiddleware, checkRole(["admin"]), getClientId);
-router.get('/', authMiddleware, checkRole(["admin"]), getClientSecret);
+router.post('/', authMiddleware, checkRole(["admin"]), createUser);
+router.get('/api-tokens', authMiddleware, checkRole(["admin"]), getClientId);
+router.get('/api-tokens', authMiddleware, checkRole(["admin"]), getClientSecret);
 
 module.exports = router;
