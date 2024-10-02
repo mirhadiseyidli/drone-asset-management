@@ -6,13 +6,16 @@ import Image from 'next/image';
 
 const DroneList = () => {
   const [drones, setDrones] = useState([]);
+  const [sortConfig, setSortConfig] = useState({
+    column: 'asset_status',
+    direction: 'asc', // 'none' | 'asc' | 'desc'
+  });
   let [selectedDroneId, setSelectedDroneId] = useState(null);
   let [isDroneSelected, setIsDroneSelected] = useState(false);
   let [selectedDrone, setSelectedDrone] = useState(null);
   const radioGroupRef = useRef(null);
   const viewButtonRef = useRef(null);
   const deleteButtonRef = useRef(null); 
-  
   const router = useRouter();
 
   const fetchDrones = async () => {
@@ -51,6 +54,39 @@ const DroneList = () => {
   useEffect(() => {
     fetchDrones();
   }, []);
+
+  const handleSort = (column) => {
+    if (sortConfig.column === column) {
+      if (sortConfig.direction === 'none') {
+        setSortConfig({ column, direction: 'asc' });
+      } else if (sortConfig.direction === 'asc') {
+        setSortConfig({ column, direction: 'desc' });
+      } else {
+        setSortConfig({ column: null, direction: 'none' }); // Reset sorting
+      }
+    } else {
+      setSortConfig({ column, direction: 'asc' });
+    }
+  };
+
+  const sortedDrones = React.useMemo(() => {
+    let sortableDrones = [...drones];
+
+    if (sortConfig.column) {
+      sortableDrones.sort((a, b) => {
+        if (typeof a[sortConfig.column] === 'string') {
+          if (sortConfig.direction === 'asc') {
+            return a[sortConfig.column].localeCompare(b[sortConfig.column]);
+          } else if (sortConfig.direction === 'desc') {
+            return b[sortConfig.column].localeCompare(a[sortConfig.column]);
+          }
+        }
+        return 0;
+      });
+    }
+
+    return sortableDrones;
+  }, [drones, sortConfig]);
 
   const handleRadioChange = (droneId) => {
     setSelectedDroneId(droneId);
@@ -199,66 +235,72 @@ const DroneList = () => {
           />
         )}
       </div>
-      <div>
-        <div className="w-full overflow-x-auto">
-          <table className="min-w-full table-auto">
-            <thead>
-              <tr className="border-b border-gray-200 font-semibold text-gray-600 uppercase text-[10px]">
-                <th className="px-2 py-2 text-center">
-                </th>
-                <th className="px-2 py-2 text-left">Drone Name</th>
-                <th className="px-2 py-2 text-left">Asset Type</th>
-                <th className="px-2 py-2 text-left">Asset Serial</th>
-                <th className="px-2 py-2 text-left">Asset Status</th>
-                <th className="px-2 py-2 text-left">Assigned To</th>
-                <th className="px-2 py-2 text-left">Sales Order</th>
-                <th className="px-2 py-2 text-left">Cost Center</th>
-                <th className="px-2 py-2 text-left">Available Date</th>
-                <th className="px-2 py-2 text-left">Approval Requested</th>
-                <th className="px-2 py-2 text-left">Approval Requester</th>
-                <th className="px-2 py-2 text-left">Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {drones.map((drone) => (
-                <tr
-                  key={drone._id}
-                  className={`hover:bg-gray-100 transition-colors text-[10px] border-b border-gray-200 ${selectedDroneId === drone._id ? 'bg-gray-200' : 'bg-gray-50'}`}
+      <div className="w-full overflow-x-auto">
+        <table className="min-w-full table-auto">
+          <thead>
+            <tr className="border-b border-gray-200 font-semibold text-gray-600 uppercase text-[12px]">
+              <th className="px-2 py-2 text-center"></th>
+              {['name', 'asset_type', 'asset_serial', 'asset_status', 'assigned_to', 'sales_order', 'cost_center', 'available_date', 'approval_requested', 'approval_requester', 'drone_value'].map((column) => (
+                <th
+                  key={column}
+                  className="px-2 py-2 text-left cursor-pointer"
+                  onClick={() => handleSort(column)}
                 >
-                  <td className="px-2 py-2">
-                    <input
-                      type="radio"
-                      value={drone._id}
-                      checked={selectedDroneId === drone._id}
-                      onChange={() => handleRadioChange(drone._id)}
-                      className="h-3 w-3 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      ref={radioGroupRef}
-                    />
-                  </td>
-                  <td className="px-2 py-2 text-left">{drone.name}</td>
-                  <td className="px-2 py-2 text-left">{drone.asset_type}</td>
-                  <td className="px-2 py-2 text-left">{drone.asset_serial}</td>
-                  <td className="px-2 py-2 text-left">{drone.asset_status}</td>
-                  <td className="px-2 py-2 text-left">{drone.assigned_to ? `${drone.assigned_to.first_name} ${drone.assigned_to.last_name}` : 'N/A'}</td>
-                  <td className="px-2 py-2 text-left">{drone.sales_order}</td>
-                  <td className="px-2 py-2 text-left">{drone.cost_center}</td>
-                  <td className="px-2 py-2 text-left">
-                    {(() => {
-                      const date = new Date(drone.available_date);
-                      const month = ('0' + (date.getMonth() + 1)).slice(-2); // Get month and add leading zero if needed
-                      const day = ('0' + date.getDate()).slice(-2); // Get day and add leading zero if needed
-                      const year = date.getFullYear();
-                      return `${month}-${day}-${year}`;
-                    })()}
-                  </td>
-                  <td className="px-2 py-2 text-left">{drone.approval_requested ? 'Yes' : 'No'}</td>
-                  <td className="px-2 py-2 text-left">{drone.approval_requester ? `${drone.approval_requester.first_name} ${drone.approval_requester.last_name}` : '--'}</td>
-                  <td className="px-2 py-2 text-left">${drone.drone_value}</td>
-                </tr>
+                  <span className="inline-flex items-center">
+                    {column.replace('_', ' ')}
+                    <span
+                      className={`ml-1 w-3 ${sortConfig.column === column ? '' : 'invisible'}`}
+                    >
+                      {sortConfig.column === column && (
+                        <span className={`transform ${sortConfig.direction === 'asc' ? 'rotate-180' : ''}`}>
+                          ▲
+                        </span>
+                      )}
+                    </span>
+                  </span>
+                </th>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedDrones.map((drone) => (
+              <tr
+                key={drone._id}
+                className={`hover:bg-gray-100 transition-colors text-[12px] border-b border-gray-200 ${selectedDroneId === drone._id ? 'bg-gray-200' : 'bg-gray-50'}`}
+              >
+                <td className="px-2 py-2">
+                  <input
+                    type="radio"
+                    value={drone._id}
+                    checked={selectedDroneId === drone._id}
+                    onChange={() => handleRadioChange(drone._id)}
+                    className="h-3 w-3 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    ref={radioGroupRef}
+                  />
+                </td>
+                <td className="px-2 py-2 text-left">{drone.name}</td>
+                <td className="px-2 py-2 text-left">{drone.asset_type}</td>
+                <td className="px-2 py-2 text-left">{drone.asset_serial}</td>
+                <td className="px-2 py-2 text-left">{drone.asset_status}</td>
+                <td className="px-2 py-2 text-left">{drone.assigned_to ? `${drone.assigned_to.first_name} ${drone.assigned_to.last_name}` : 'N/A'}</td>
+                <td className="px-2 py-2 text-left">{drone.sales_order}</td>
+                <td className="px-2 py-2 text-left">{drone.cost_center}</td>
+                <td className="px-2 py-2 text-left">
+                  {(() => {
+                    const date = new Date(drone.available_date);
+                    const month = ('0' + (date.getMonth() + 1)).slice(-2);
+                    const day = ('0' + date.getDate()).slice(-2);
+                    const year = date.getFullYear();
+                    return `${month}-${day}-${year}`;
+                  })()}
+                </td>
+                <td className="px-2 py-2 text-left">{drone.approval_requested ? 'Yes' : 'No'}</td>
+                <td className="px-2 py-2 text-left">{drone.approval_requester ? `${drone.approval_requester.first_name} ${drone.approval_requester.last_name}` : '--'}</td>
+                <td className="px-2 py-2 text-left">${drone.drone_value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

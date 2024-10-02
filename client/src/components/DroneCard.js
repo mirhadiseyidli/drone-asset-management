@@ -5,7 +5,7 @@ export default function DroneCard({ drone, onRequest, onClose }) {
 
   return (
     <div className='z-10 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50'>
-      <div className="relative flex max-w-sm w-full max-h-fit items-center justify-start text-center text-black rounded-xl p-6 bg-white shadow-sm shadow-white">
+      <div className="relative flex max-w-md w-full max-h-fit items-center justify-start text-center text-black rounded-xl p-8 bg-white shadow-sm shadow-white">
         <div>
           <button
             onClick={onClose}
@@ -25,7 +25,7 @@ export default function DroneCard({ drone, onRequest, onClose }) {
           <div className='flex w-full'>
             <div className='flex flex-row gap-2 items-center text-start w-full justify-between'>
               <h1 className="text-md font-bold">{drone.name}</h1>
-              <span className='px-2 py-1 font-semibold bg-black text-white rounded-3xl text-[10px]'>
+              <span className='px-2 py-1 font-semibold bg-black text-white rounded-3xl text-[12px]'>
                 <p>
                   {drone.asset_status.toLowerCase()
                     .split(' ')
@@ -35,14 +35,14 @@ export default function DroneCard({ drone, onRequest, onClose }) {
               </span>
             </div>
           </div>
-          <div className='flex flex-row gap-4 py-10 font-semibold text-[10px]'>
+          <div className='flex flex-row gap-6 py-10 font-semibold text-[12px]'>
             <div className='flex flex-col gap-2 items-start justify-start text-start'>
               <span className='flex flex-row items-center gap-1 w-full'>
                 <Image
                   src="/images/serial-number.png"
                   alt="Serial Number"
-                  width={18}
-                  height={18}
+                  width={20}
+                  height={20}
                 />
                 <p>{drone.asset_serial}</p>
               </span>
@@ -50,8 +50,8 @@ export default function DroneCard({ drone, onRequest, onClose }) {
                 <Image
                   src="/images/department.png"
                   alt="Department"
-                  width={18}
-                  height={18}
+                  width={20}
+                  height={20}
                   className=''
                 />
                 <p>{drone.cost_center}</p>
@@ -60,8 +60,8 @@ export default function DroneCard({ drone, onRequest, onClose }) {
                 <Image
                   src="/images/assignment-date.png"
                   alt="Assignment Date"
-                  width={18}
-                  height={18}
+                  width={20}
+                  height={20}
                   className=''
                 />
                 <p>
@@ -79,8 +79,8 @@ export default function DroneCard({ drone, onRequest, onClose }) {
                 <Image
                   src="/images/assigned-to-small.png"
                   alt="Assigned To Small"
-                  width={18}
-                  height={18}
+                  width={20}
+                  height={20}
                   className=''
                 />
                 <p>{drone.assigned_to.first_name} {drone.assigned_to.last_name}</p>
@@ -91,8 +91,8 @@ export default function DroneCard({ drone, onRequest, onClose }) {
                 <Image
                   src="/images/inventory.png"
                   alt="Inventory"
-                  width={18}
-                  height={18}
+                  width={20}
+                  height={20}
                   className=''
                 />
                 <p>{drone.asset_type}</p>
@@ -101,8 +101,8 @@ export default function DroneCard({ drone, onRequest, onClose }) {
                 <Image
                   src="/images/sales-order.png"
                   alt="Sales Order"
-                  width={18}
-                  height={18}
+                  width={20}
+                  height={20}
                   className=''
                 />
                 <p>{drone.sales_order}</p>
@@ -111,8 +111,8 @@ export default function DroneCard({ drone, onRequest, onClose }) {
                 <Image
                   src="/images/availability.png"
                   alt="Availability"
-                  width={18}
-                  height={18}
+                  width={20}
+                  height={20}
                   className=''
                 />
                 <p>
@@ -129,8 +129,14 @@ export default function DroneCard({ drone, onRequest, onClose }) {
             </div>
           </div>
           <div className='flex justify-end'>
-            <button onClick={onRequest} className="flex items-center justify-center px-2 py-1 bg-black text-white border border-black rounded font-bold text-[10px] hover:bg-gray-700 active:bg-gray-900">
-              {'Request'}
+            <button 
+              onClick={onRequest} 
+              className="flex items-center justify-center px-2 py-1 bg-black text-white border border-black rounded font-bold text-[12px] hover:bg-gray-700 active:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={drone.asset_status.toLowerCase() === 'in use' ||
+                drone.asset_status.toLowerCase() === 'unavailable'
+              }
+            >
+              Request
             </button>
           </div>
         </div>

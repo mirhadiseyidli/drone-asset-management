@@ -1,7 +1,10 @@
 const User = require('../database/schemas/userSchema');
-const userCredentials = require('../database/schemas/userCredentialsSchema')
+const userCredentials = require('../database/schemas/userCredentialsSchema');
+const jwt = require('jsonwebtoken');
 
 const crypto = require('crypto');
+
+require('dotenv').config();
 
 // These should be role based: [ Admin ]
 
@@ -66,12 +69,11 @@ const createUser = async (req, res) => {
 };
 
 const findMe = async (req, res) => {
-  console.log('this')
   try {
       const userId = req.user._id;
       const user = await User.findById(userId);
       if (!user) {
-          return res.status(404).json({ message: 'User not found ahahhahah' });
+          return res.status(404).json({ message: 'User not found' });
       }
       res.json(user);
   } catch (error) {
@@ -80,15 +82,15 @@ const findMe = async (req, res) => {
 };
 
 const getClientId = async (req, res) => {
-  const { id } = req.params;
+  const id = req.user._id;
 
   try {
-    const client_id = generateClientId();
-    const userCreds = userCredentials.findOneAndUpdate(
+    const client_key = generateClientKey();
+    const userCreds = await userCredentials.findOneAndUpdate(
       { user: id },
-      { client_id: client_id},
-      { new: true }
-    ).select('-password');
+      { client_key: client_key},
+      { new: true, upsert: true }
+    );
 
     res.status(200).json({ message: 'Client ID is created' });
   } catch (error) {
@@ -97,15 +99,15 @@ const getClientId = async (req, res) => {
 };
 
 const getClientSecret = async (req, res) => {
-  const { id } = req.params;
+  const id = req.user._id;
 
   try {
     const client_secret = generateClientSecret(req.user);
-    const userSecret = userCredentials.findOneAndUpdate(
+    const userSecret = await userCredentials.findOneAndUpdate(
       { user: id },
       { client_secret: client_secret},
-      { new: true }
-    ).select('-password');
+      { new: true, upsert: true }
+    );
 
     res.status(200).json({ message: 'Client Secret is created' });
   } catch (error) {
@@ -113,17 +115,16 @@ const getClientSecret = async (req, res) => {
   };
 };
 
-function generateClientId() {
+function generateClientKey() {
   return crypto.randomBytes(16).toString('hex'); // Generates a 30-character ID
 };
 
 // Function to generate a client secret
-function generateClientSecret(user) {
-  return jwt.sign(user, process.env.JWT_CLIENT_SECRET, { expiresIn: null }); // Generates a 30-character secret
+function generateClientSecret() {
+  return crypto.randomBytes(16).toString('hex'); // Generates a 30-character secret
 };
 
 async function getUser(req, res, next) {
-  console.log(req.params)
   let found_user;
   try {
     found_user = await User.findOne({ _id: req.params.id }).select('-password');
@@ -138,6 +139,19 @@ async function getUser(req, res, next) {
   next();
 };
 
+async function getUserCredentials(req, res) {
+  let found_user;
+  try {
+    found_user = await userCredentials.findOne({ user: req.user._id });
+    if (found_user == null) {
+      return res.status(404).json({ message: 'Cannot find the user' });
+    };
+    return res.status(200).json(found_user)
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  };
+};
+
 module.exports = { 
   getUserProfile,
   getUsers,
@@ -148,4 +162,5 @@ module.exports = {
   getClientSecret,
   findMe,
   getUser,
+  getUserCredentials
 };

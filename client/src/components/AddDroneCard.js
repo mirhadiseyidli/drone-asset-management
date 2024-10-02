@@ -67,7 +67,7 @@ export default function AddDroneCard({ onClose }) {
                       const response = await api.get('http://localhost:5002/api/users', {
                         withCredentials: true, // EhttpOnly cookies
                       });
-                      setDrones(response.data);
+                      setUsers(response.data);
                     } else {
                       // If refresh token is expired sent user to log in page. It will be 1 week just like session cookie so that they expire at the same time
                       console.log('Refresh token expired or invalid. Please log in again.');
@@ -167,14 +167,14 @@ export default function AddDroneCard({ onClose }) {
     };
 
     return (
-        <div className='z-10'>
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 text-[10px]">
-                <div className="bg-white p-8 rounded-lg shadow-lg max-w-sm">
+        <div className='z-10 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50'>
+            <div className="text-[12px]">
+                <div className="bg-white p-10 rounded-lg shadow-lg max-w-sm">
                     <div className='flex flex-row items-center justify-between'>
-                        <h2 className="font-bold mb-4">Add New Drone</h2>
+                        <h2 className="font-bold mb-5 text-[14px]">Add New Drone</h2>
                         <button
                             onClick={onCloseModal}
-                            className="mb-4 rounded"
+                            className="mb-5 rounded"
                         >
                             <Image
                                 src="/images/closebutton.png"
@@ -192,7 +192,7 @@ export default function AddDroneCard({ onClose }) {
                             placeholder="Drone Name"
                             value={droneData.name}
                             onChange={handleInputChange}
-                            className="border p-2 w-full mb-2"
+                            className="border p-2 w-full mb-3"
                             required
                         />
                         <input
@@ -201,14 +201,14 @@ export default function AddDroneCard({ onClose }) {
                             placeholder="Asset Serial"
                             value={droneData.asset_serial}
                             onChange={handleInputChange}
-                            className="border p-2 w-full mb-2"
+                            className="border p-2 w-full mb-3"
                             required
                         />
                         <select
                             name="asset_status"
                             value={droneData.asset_status}
                             onChange={handleInputChange}
-                            className="border p-2 w-full mb-2"
+                            className="border p-2 w-full mb-3"
                             required
                         >
                             <option value="In Stock">In Stock</option>
@@ -218,7 +218,7 @@ export default function AddDroneCard({ onClose }) {
                         </select>
 
                         {/* Assigned to (with search) */}
-                        <div className="relative mb-2">
+                        <div className="relative mb-3">
                             <input
                                 type="text"
                                 placeholder="Search user by email"
@@ -247,7 +247,7 @@ export default function AddDroneCard({ onClose }) {
                             placeholder="Sales Order"
                             value={droneData.sales_order}
                             onChange={handleInputChange}
-                            className="border p-2 w-full mb-2"
+                            className="border p-2 w-full mb-3"
                         />
                         <input
                             type="text"
@@ -255,7 +255,7 @@ export default function AddDroneCard({ onClose }) {
                             placeholder="Cost Center"
                             value={droneData.cost_center}
                             onChange={handleInputChange}
-                            className="border p-2 w-full mb-2"
+                            className="border p-2 w-full mb-3"
                         />
                         <input
                             type="date"
@@ -263,7 +263,7 @@ export default function AddDroneCard({ onClose }) {
                             placeholder="Available Date"
                             value={droneData.available_date}
                             onChange={handleInputChange}
-                            className="border p-2 w-full mb-2"
+                            className="border p-2 w-full mb-3"
                             required
                         />
                         <input
@@ -272,12 +272,12 @@ export default function AddDroneCard({ onClose }) {
                             placeholder="Drone Value"
                             value={droneData.drone_value}
                             onChange={handleInputChange}
-                            className="border p-2 w-full mb-2"
+                            className="border p-2 w-full mb-3"
                             required
                         />
                         <button
                             type="submit"
-                            className="bg-green-500 text-black px-2 py-1 mt-2 rounded font-bold"
+                            className="bg-green-500 text-black px-3 py-2 mt-2 rounded font-bold"
                         >
                             Add Drone
                         </button>

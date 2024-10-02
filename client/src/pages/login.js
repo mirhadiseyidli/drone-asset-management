@@ -51,7 +51,7 @@ export default function LoginPage() {
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div
                 key={i}
-                className="h-16 w-16 rounded-lg bg-gradient-to-br from-blue-400 to-black p-1 shadow-lg"
+                className="relative h-16 w-16 rounded-lg bg-gradient-to-br from-blue-400 to-black p-1 shadow-lg bg-[length:200%_200%] animate-gradient-move"
               >
                 <div className="flex h-full w-full items-center justify-center rounded-md bg-white">
                   <Image

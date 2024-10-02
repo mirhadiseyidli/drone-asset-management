@@ -1,13 +1,50 @@
 const Drone = require('../database/schemas/droneSchema');
+const DroneStats = require('../database/schemas/droneStatSchema');
 const User = require('../database/schemas/userSchema');
 const slackActions = require('../utils/slackActions');
+const cron = require('node-cron');
 
 const crypto = require('crypto');
+
+const updateMonthlyStats = async () => {
+  const currentMonth = new Date();
+  currentMonth.setUTCDate(1);
+  currentMonth.setUTCHours(0, 0, 0, 0);
+
+  const drones = await Drone.find({});
+  const dronesInUse = drones.filter(drone => drone.asset_status.toLowerCase() === 'in use');
+  const dronesInStock = drones.filter(drone => drone.asset_status.toLowerCase() === 'in stock');
+  const dronesAvailable = drones.filter(drone => drone.asset_status.toLowerCase() === 'available');
+  const dronesUnavailable = drones.filter(drone => drone.asset_status.toLowerCase() === 'unavailable');
+  const totalDroneValue = drones.reduce((acc, drone) => acc + (drone.drone_value || 0), 0);
+
+  let stats = await DroneStats.findOne({ month: currentMonth });
+
+  if (!stats) {
+    stats = new DroneStats({
+      month: currentMonth,
+      total_drones: drones.length,
+      drones_in_use: dronesInUse.length,
+      drones_in_stock: dronesInStock.length,
+      drones_available: dronesAvailable.length,
+      drones_unavailable: dronesUnavailable.length,
+      total_drone_value: totalDroneValue,
+    });
+  } else {
+    stats.total_drones = drones.length;
+    stats.drones_in_use = dronesInUse.length;
+    stats.drones_in_stock = dronesInStock.length;
+    stats.drones_available = dronesAvailable.length,
+    stats.drones_unavailable = dronesUnavailable.length,
+    stats.total_drone_value = totalDroneValue;
+  }
+
+  await stats.save();
+};
 
 const getDrones = async (req, res) => {
   try {
     const drones = await Drone.find().populate([{ path: 'assigned_to' }, { path: 'approval_requester' }]);
-    console.log(drones)
     res.status(200).json(drones);
   } catch (error) {
     res.status(500).json({ message: 'Failed to get Drones' });
@@ -48,17 +85,13 @@ const requestDrone = async (req, res) => {
 };
 
 const createDrone = async (req, res) => {
-  console.log(req.body)
   try {
     const { assigned_to, approval_requester, ...droneData } = req.body;
-    console.log(assigned_to)
-    console.log(approval_requester)
     let user;
     let requester;
 
     if (assigned_to) {
       user = await User.findOne({ email: assigned_to });
-      console.log(user)
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
@@ -72,9 +105,8 @@ const createDrone = async (req, res) => {
       }
       droneData.approval_requester = user._id;
     }
-
     const drone = await Drone.create(droneData);
-    console.log('done')
+    await updateMonthlyStats();
     res.status(201).json(drone);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -83,9 +115,9 @@ const createDrone = async (req, res) => {
 
 const deleteDrone = async (req, res) => {
   const { id } = req.params
-  console.log(req.params)
   try {
     const drone = await Drone.findOneAndDelete({ _id: id })
+    await updateMonthlyStats();
     res.status(200).json(drone);
   } catch (err) {
       res.status(400).json({ message: err.message });
@@ -106,12 +138,39 @@ const editDrone = async (req, res) => {
     if (!drone) {
       return res.status(404).json({ message: 'Drone not found' });
     }
-
+    await updateMonthlyStats();
     res.status(200).json(drone);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
+
+const getDroneStat = async (req, res) => {
+  const currentMonth = new Date();
+  currentMonth.setUTCDate(1);
+  currentMonth.setUTCHours(0, 0, 0, 0);
+
+  const lastMonth = new Date(currentMonth);
+  lastMonth.setUTCDate(1);
+  lastMonth.setUTCHours(0, 0, 0, 0);
+  lastMonth.setUTCMonth(lastMonth.getUTCMonth() - 1);
+
+  try {
+    const currentStats = await DroneStats.findOne({ month: currentMonth });
+    const lastMonthStats = await DroneStats.findOne({ month: lastMonth });
+    res.status(200).json({
+      currentStats,
+      lastMonthStats,
+    });
+  } catch (err) {
+    res.status(404).json({ message: err.message });
+  }
+};
+
+cron.schedule('0 0 * * *', async () => {
+  console.log('Running updateMonthlyStats at midnight');
+  await updateMonthlyStats();
+});
 
 function generateHash() {
   return crypto
@@ -119,4 +178,4 @@ function generateHash() {
       .toString('hex');
 }
 
-module.exports = { getDrones, requestDrone, createDrone, deleteDrone, editDrone };
+module.exports = { getDrones, requestDrone, createDrone, deleteDrone, editDrone, getDroneStat };

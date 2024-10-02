@@ -34,6 +34,7 @@ const droneSchema = new mongoose.Schema({
   },
   assignment_date: {
     type: Date,
+    default: Date.now(),
     required: true,
   },
   available_date: {

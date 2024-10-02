@@ -5,6 +5,7 @@ import SearchBar from '../components/SearchBar';
 import ProfileBar from '../components/profileBar';
 import Dashboard from '../components/Dashboard';
 import Inventory from '../components/Inventory';
+import AdminPanel from '../components/AdminPanel';
 
 export default function HomePage() {
   const router = useRouter();
@@ -127,7 +128,7 @@ export default function HomePage() {
             {selectedSection === 'Dashboard' && <Dashboard />}
             {selectedSection === 'Requests' && <div>Requests Content</div>}
             {selectedSection === 'Approvals' && <div>Approvals Content</div>}
-            {selectedSection === 'Admin Panel' && <div>Admin Panel Content</div>}
+            {selectedSection === 'Admin Panel' && <AdminPanel />}
           </div>
         </div>
       </div>

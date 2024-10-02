@@ -19,6 +19,19 @@ module.exports = {
       fontSize: {
         '3.5xl': '2rem',
       },
+      backgroundSize: {
+        '200%': '200%',
+      },
+      animation: {
+        'gradient-move': 'gradientMove 4s ease infinite',
+      },
+      keyframes: {
+        gradientMove: {
+          '0%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+          '100%': { backgroundPosition: '0% 50%' },
+        },
+      },
     },
   },
   plugins: [],
