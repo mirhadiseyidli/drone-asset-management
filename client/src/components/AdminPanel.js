@@ -7,6 +7,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export default function AdminPanel() {
     const [users, setUsers] = useState([]);
+    const [sortConfig, setSortConfig] = useState({
+        column: 'name',
+        direction: 'asc', // 'none' | 'asc' | 'desc'
+      });
     const [currentPage, setCurrentPage] = useState(1);
     const [showClientKey, setShowClientKey] = useState(false);
     const [showClientSecret, setShowClientSecret] = useState(false);
@@ -19,15 +23,12 @@ export default function AdminPanel() {
     const indexOfFirstUser = indexOfLastUser - usersPerPage;
     const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
 
-    const totalPages = Math.ceil(users.length / usersPerPage);
-
-    const handlePageChange = (pageNumber) => setCurrentPage(pageNumber);
-
     const fetchUsers = async () => {
         try {
             const response = await api.get('http://localhost:5002/api/users', {
                 withCredentials: true, // httpOnly cookies
             });
+            console.log(response.data)
             setUsers(response.data);
         } catch (error) {
             if (error.response && error.response.status === 401) {
@@ -59,6 +60,61 @@ export default function AdminPanel() {
     useEffect(() => {
         fetchUsers();
     }, []);
+
+    const handleSort = (column) => {
+        if (sortConfig.column === column) {
+          if (sortConfig.direction === 'none') {
+            setSortConfig({ column, direction: 'asc' });
+          } else if (sortConfig.direction === 'asc') {
+            setSortConfig({ column, direction: 'desc' });
+          } else {
+            setSortConfig({ column: null, direction: 'none' }); // Reset sorting
+          }
+        } else {
+          setSortConfig({ column, direction: 'asc' });
+        }
+    };
+
+    const sortedUsers = React.useMemo(() => {
+        let sortableUsers = [...users];
+    
+        if (sortConfig.column) {
+            sortableUsers.sort((a, b) => {
+                let aValue = '';
+                let bValue = '';
+    
+                if (sortConfig.column === 'name') {
+                    aValue = `${a.first_name} ${a.last_name}`;
+                    bValue = `${b.first_name} ${b.last_name}`;
+                } else {
+                    aValue = a[sortConfig.column];
+                    bValue = b[sortConfig.column];
+                }
+    
+                if (typeof aValue === 'string') {
+                    return sortConfig.direction === 'asc'
+                        ? aValue.localeCompare(bValue)
+                        : bValue.localeCompare(aValue);
+                }
+                return 0;
+            });
+        }
+    
+        return sortableUsers;
+    }, [users, sortConfig]);
+
+    const paginatedUsers = sortedUsers.slice(
+        (currentPage - 1) * usersPerPage,
+        currentPage * usersPerPage
+      );
+    
+    const totalPages = Math.ceil(users.length / usersPerPage);
+
+    const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+        setCurrentPage(page);
+    }
+    };
 
     const handleGenerateKey = async (api_type) => {
         try {
@@ -145,28 +201,49 @@ export default function AdminPanel() {
             </header>
             <div className="flex flex-col p-8 bg-gray-50 w-full h-full gap-6">
                 {/* User Management Table */}
-                <div className="bg-white rounded-lg shadow-md p-6 overflow-x-auto">
+                <div className="bg-white rounded-lg shadow-md p-6 mt-16 overflow-x-auto">
                     <h2 className="text-md font-semibold mb-4">User Management</h2>
-                    <table className="w-full table-auto text-left text-[12px]">
+                    <table className="min-w-full table-auto text-left text-[12px]">
                         <thead>
-                            <tr className="border-b">
-                                <th className="pb-2">Name</th>
-                                <th className="pb-2">Email</th>
-                                <th className="pb-2">Role</th>
-                                <th className="pb-2 text-right">Actions</th>
+                            <tr className="border-b border-gray-200 font-semibold text-gray-600 uppercase text-[12px]">
+                                {['name', 'email', 'role', 'actions'].map((column) => (
+                                    <th
+                                        key={column}
+                                        className={`pr-2 py-2 cursor-pointer ${column === 'actions' ? 'text-right' : 'text-left'}`}
+                                        onClick={() => handleSort(column)}
+                                    >
+                                        <span className="relative">
+                                        <span className="whitespace-normal">{column.replace('_', ' ')}</span>
+                                        {sortConfig.column === column && (
+                                            <span className={`absolute ml-1 transform ${sortConfig.direction === 'desc' ? 'rotate-180' : ''}`}>
+                                            ▲
+                                            </span>
+                                        )}
+                                        </span>
+                                    </th>
+                                ))}
                             </tr>
-                        </thead>
+                            </thead>
                         <tbody>
-                            {currentUsers.map((user) => (
+                            {paginatedUsers.map((user) => (
                                 <tr className="border-b" key={user._id}>
-                                    <td className="py-2">{user.first_name} {user.last_name}</td>
-                                    <td className="py-2">{user.email}</td>
-                                    <td className="py-2">{user.role.charAt(0).toUpperCase() + user.role.slice(1)}</td>
-                                    <td className="py-2 text-right">
-                                        <button className="bg-gray-200 text-gray-800 px-4 py-1 rounded">Edit</button>
+                                    <td className="pr-2 py-2">{user.first_name} {user.last_name}</td>
+                                    <td className="pr-2 py-2">{user.email}</td>
+                                    <td className="pr-2 py-2">{user.role.charAt(0).toUpperCase() + user.role.slice(1)}</td>
+                                    <td className="pr-2 py-2 text-right">
+                                        <button className="bg-black text-white px-4 py-1 rounded hover:bg-gray-700 active:bg-gray-500">Edit</button>
                                     </td>
                                 </tr>
                             ))}
+                            {paginatedUsers.length < usersPerPage &&
+                                Array.from({ length: usersPerPage - paginatedUsers.length }).map((_, index) => (
+                                    <tr key={`empty-${index}`} className="bg-gray-50 border-b border-gray-200 text-[12px]">
+                                        <td className="px-2 py-2 text-left"><p className='invisible'>--</p></td>
+                                        <td className="px-2 py-2 text-left"><p className='invisible'>--</p></td>
+                                        <td className="px-2 py-2 text-left"><p className='invisible'>--</p></td>
+                                        <td className="px-2 py-2 text-left"><p className='invisible'>--</p></td>
+                                    </tr>
+                                ))}
                         </tbody>
                     </table>
                     
@@ -175,7 +252,7 @@ export default function AdminPanel() {
                         <button
                             onClick={() => handlePageChange(currentPage - 1)}
                             disabled={currentPage === 1}
-                            className="px-1 py-1 mx-1 rounded"
+                            className={`px-1 py-1 mx-1 rounded ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-black'}`}
                         >
                             Prev
                         </button>
@@ -193,7 +270,7 @@ export default function AdminPanel() {
                         <button
                             onClick={() => handlePageChange(currentPage + 1)}
                             disabled={currentPage === totalPages}
-                            className="px-1 py-1 mx-1 rounded"
+                            className={`px-1 py-1 mx-1 rounded ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-black'}`}
                         >
                             Next
                         </button>
@@ -204,24 +281,24 @@ export default function AdminPanel() {
                 <div className="bg-white rounded-lg shadow-md p-6 overflow-x-auto">
                     <h2 className="text-md font-semibold mb-4">API Keys</h2>
                     <div className="flex flex-col gap-4">
-                    <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-center">
                             <div className="flex justify-between items-center relative w-full">
-                                <div>
+                                <div className='pr-2'>
                                     <h3 className="text-sm font-medium">Client Secret</h3>
                                     <p className="text-gray-600 mt-1 text-[12px]">
-                                        {showClientKey ? clientKey : '*'.repeat(clientKey.length)}
+                                        {showClientKey ? (clientKey || 'Generate a Client Key') : '*'.repeat((clientKey || 'Generate a Client Key').length)}
                                     </p>
                                 </div>
-                                <div className="flex items-center space-x-2">
+                                <div className="flex items-center space-x-2 pr-2">
                                     <button
                                         onClick={() => setShowClientKey(!showClientKey)}
-                                        className="px-4 py-0.5 border rounded-md hover:bg-gray-700 bg-black"
+                                        className="px-4 py-0.5 border rounded-md hover:bg-gray-700 active:bg-gray-500 bg-black"
                                     >
                                         <FontAwesomeIcon icon={showClientKey ? faEyeSlash : faEye} className='w-4 h-4 invert'/>
                                     </button>
                                     <button
                                         onClick={() => handleGenerateKey('client-key')}
-                                        className="flex min-w-48 border border-black justify-center items-center bg-black text-white px-4 py-1 rounded text-[12px] hover:bg-gray-700"
+                                        className="flex min-w-48 border border-black justify-center items-center bg-black text-white px-4 py-1 rounded text-[12px] hover:bg-gray-700 active:bg-gray-500"
                                     >
                                         <Image
                                             src="/images/api-key.png"
@@ -238,22 +315,22 @@ export default function AdminPanel() {
 
                         <div className="flex justify-between items-center">
                             <div className="flex justify-between items-center relative w-full">
-                                <div>
+                                <div className='pr-2'>
                                     <h3 className="text-sm font-medium">Client Secret</h3>
                                     <p className="text-gray-600 mt-1 text-[12px]">
-                                        {showClientSecret ? clientSecret : '*'.repeat(clientSecret.length)}
+                                        {showClientSecret ? (clientSecret || 'Generate a Client Secret') : '*'.repeat((clientSecret || 'Generate a Client Secret').length)}
                                     </p>
                                 </div>
-                                <div className="flex items-center space-x-2">
+                                <div className="flex items-center space-x-2 pr-2">
                                     <button
                                         onClick={() => setShowClientSecret(!showClientSecret)}
-                                        className="px-4 py-0.5 border rounded-md hover:bg-gray-700 bg-black"
+                                        className="px-4 py-0.5 border rounded-md hhover:bg-gray-700 active:bg-gray-500 bg-black"
                                     >
                                         <FontAwesomeIcon icon={showClientSecret ? faEyeSlash : faEye} className='w-4 h-4 invert'/>
                                     </button>
                                     <button
                                         onClick={() => handleGenerateKey('client-secret')}
-                                        className="flex min-w-48 border border-black justify-center items-center bg-black text-white px-4 py-1 rounded text-[12px] hover:bg-gray-700"
+                                        className="flex min-w-48 border border-black justify-center items-center bg-black text-white px-4 py-1 rounded text-[12px] hover:bg-gray-700 active:bg-gray-500"
                                     >
                                         <Image
                                             src="/images/api-key.png"

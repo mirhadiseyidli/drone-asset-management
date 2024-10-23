@@ -100,7 +100,7 @@ export default function Dashboard() {
                 </div>
             </header>
             <div className="flex-grow p-8 bg-gray-50 w-full h-full">
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="mt-16 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     {dataFields.map(field => (
                         <DashboardCard
                             key={field.key}

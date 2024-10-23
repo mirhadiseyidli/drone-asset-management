@@ -15,6 +15,7 @@ const authRoutes = require('./routes/authRoutes');
 const tokenRoutes = require('./routes/tokenRoutes');
 const droneRoutes = require('./routes/droneRoutes');
 const userRoutes = require('./routes/userRoutes');
+const searchRoutes = require('./routes/searchRoutes');
 
 const app = express();
 const csrfTokens = new csrf(); // Initialize a new CSRF instance
@@ -80,7 +81,8 @@ app.get('/api/check-auth', csrfProtection, (req, res) => {
 app.use('/api/auth', csrfProtection, authRoutes);
 app.use('/api/token', csrfProtection, tokenRoutes);
 app.use('/api/drones', csrfProtection, droneRoutes);
-app.use('/api/users', userRoutes);
+app.use('/api/users', csrfProtection, userRoutes);
+app.use('/api/search', csrfProtection, searchRoutes);
 
 const PORT = process.env.PORT || 5002;
 app.listen(PORT, () => {

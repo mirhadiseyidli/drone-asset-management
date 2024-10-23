@@ -17,6 +17,8 @@ const DroneList = () => {
   const viewButtonRef = useRef(null);
   const deleteButtonRef = useRef(null); 
   const router = useRouter();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const fetchDrones = async () => {
     try {
@@ -191,12 +193,25 @@ const DroneList = () => {
     };
   }, []);
 
+  const paginatedDrones = sortedDrones.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const totalPages = Math.ceil(drones.length / itemsPerPage);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
   return (
     <div className='flex flex-col w-full'>
-      <div className='flex flex-row gap-2 pb-4 items-center justify-end'>
+      <div className='flex flex-row gap-2 pr-8 pt-8 items-center justify-end'>
         <button 
             onClick={() => handleDelete(selectedDroneId)}
-            className={`flex bg-black text-white px-2.5 py-1.5 rounded text-[10px] items-center justify-center disabled:bg-gray-400 hover:bg-gray-700 ${!selectedDroneId ? 'invisible' : ''}`}
+            className={`flex bg-black text-white px-2.5 py-1.5 rounded text-[10px] items-center justify-center disabled:bg-gray-400 hover:bg-gray-700 active:bg-gray-500 ${!selectedDroneId ? 'invisible' : ''}`}
             disabled={!selectedDroneId}
             ref={deleteButtonRef}
         >
@@ -211,7 +226,7 @@ const DroneList = () => {
         </button>
         <button 
             onClick={() => handleCardView(selectedDroneId)}
-            className={`flex bg-black text-white px-2.5 py-1.5 rounded text-[10px] items-center justify-center disabled:bg-gray-400 hover:bg-gray-700 ${!selectedDroneId ? 'invisible' : ''}`}
+            className={`flex bg-black text-white px-2.5 py-1.5 rounded text-[10px] items-center justify-center disabled:bg-gray-400 hover:bg-gray-700 active:bg-gray-500 ${!selectedDroneId ? 'invisible' : ''}`}
             disabled={!selectedDroneId}
             ref={viewButtonRef}
         >
@@ -235,75 +250,128 @@ const DroneList = () => {
           />
         )}
       </div>
-      <div className="w-full overflow-x-auto">
-        <table className="min-w-full table-auto">
-          <thead>
-            <tr className="border-b border-gray-200 font-semibold text-gray-600 uppercase text-[12px]">
-              <th className="px-2 py-2 text-center"></th>
-              {['name', 'asset_type', 'asset_serial', 'asset_status', 'assigned_to', 'sales_order', 'cost_center', 'available_date', 'approval_requested', 'approval_requester', 'drone_value'].map((column) => (
-                <th
-                  key={column}
-                  className="px-2 py-2 text-left cursor-pointer"
-                  onClick={() => handleSort(column)}
-                >
-                  <span className="inline-flex items-center">
-                    {column.replace('_', ' ')}
-                    <span
-                      className={`ml-1 w-3 ${sortConfig.column === column ? '' : 'invisible'}`}
-                    >
+      <div className="flex flex-col p-8 bg-gray-50 w-full h-full">
+        <div className='bg-white rounded-lg shadow-md p-6 overflow-x-auto overflow-y-auto'>
+          <h2 className="text-md font-semibold mb-4">Drone List</h2>
+          <table className="min-w-full table-auto">
+            <thead>
+              <tr className="border-b border-gray-200 font-semibold text-gray-600 uppercase text-[12px]">
+                <th className="px-2 py-2 text-center"></th>
+                {['name', 'asset_type', 'asset_serial', 'asset_status', 'assigned_to', 'sales_order', 'cost_center', 'available_date', 'approval_requested', 'approval_requester', 'drone_value'].map((column) => (
+                  <th
+                    key={column}
+                    className="px-2 py-2 text-left cursor-pointer"
+                    onClick={() => handleSort(column)}
+                  >
+                    <span className="relative">
+                      <span className="whitespace-normal">{column.replace('_', ' ')}</span>
                       {sortConfig.column === column && (
-                        <span className={`transform ${sortConfig.direction === 'asc' ? 'rotate-180' : ''}`}>
+                        <span className={`absolute ml-1 transform ${sortConfig.direction === 'desc' ? 'rotate-180' : ''}`}>
                           ▲
                         </span>
                       )}
                     </span>
-                  </span>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {sortedDrones.map((drone) => (
-              <tr
-                key={drone._id}
-                className={`hover:bg-gray-100 transition-colors text-[12px] border-b border-gray-200 ${selectedDroneId === drone._id ? 'bg-gray-200' : 'bg-gray-50'}`}
-              >
-                <td className="px-2 py-2">
-                  <input
-                    type="radio"
-                    value={drone._id}
-                    checked={selectedDroneId === drone._id}
-                    onChange={() => handleRadioChange(drone._id)}
-                    className="h-3 w-3 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    ref={radioGroupRef}
-                  />
-                </td>
-                <td className="px-2 py-2 text-left">{drone.name}</td>
-                <td className="px-2 py-2 text-left">{drone.asset_type}</td>
-                <td className="px-2 py-2 text-left">{drone.asset_serial}</td>
-                <td className="px-2 py-2 text-left">{drone.asset_status}</td>
-                <td className="px-2 py-2 text-left">{drone.assigned_to ? `${drone.assigned_to.first_name} ${drone.assigned_to.last_name}` : 'N/A'}</td>
-                <td className="px-2 py-2 text-left">{drone.sales_order}</td>
-                <td className="px-2 py-2 text-left">{drone.cost_center}</td>
-                <td className="px-2 py-2 text-left">
-                  {(() => {
-                    const date = new Date(drone.available_date);
-                    const month = ('0' + (date.getMonth() + 1)).slice(-2);
-                    const day = ('0' + date.getDate()).slice(-2);
-                    const year = date.getFullYear();
-                    return `${month}-${day}-${year}`;
-                  })()}
-                </td>
-                <td className="px-2 py-2 text-left">{drone.approval_requested ? 'Yes' : 'No'}</td>
-                <td className="px-2 py-2 text-left">{drone.approval_requester ? `${drone.approval_requester.first_name} ${drone.approval_requester.last_name}` : '--'}</td>
-                <td className="px-2 py-2 text-left">${drone.drone_value}</td>
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {paginatedDrones.map((drone) => (
+                <tr
+                  key={drone._id}
+                  className={`hover:bg-gray-100 transition-colors text-[12px] border-b border-gray-200 ${selectedDroneId === drone._id ? 'bg-gray-200' : ''}`}
+                >
+                  <td className="px-2 py-2">
+                    <input
+                      type="radio"
+                      value={drone._id}
+                      checked={selectedDroneId === drone._id}
+                      onChange={() => handleRadioChange(drone._id)}
+                      className="h-3 w-3 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      ref={radioGroupRef}
+                    />
+                  </td>
+                  <td className="px-2 py-2 text-left">{drone.name}</td>
+                  <td className="px-2 py-2 text-left">{drone.asset_type}</td>
+                  <td className="px-2 py-2 text-left">{drone.asset_serial}</td>
+                  <td className="px-2 py-2 text-left">{drone.asset_status}</td>
+                  <td className="px-2 py-2 text-left">{drone.assigned_to ? `${drone.assigned_to.first_name} ${drone.assigned_to.last_name}` : 'N/A'}</td>
+                  <td className="px-2 py-2 text-left">{drone.sales_order}</td>
+                  <td className="px-2 py-2 text-left">{drone.cost_center}</td>
+                  <td className="px-2 py-2 text-left">
+                    {(() => {
+                      const date = new Date(drone.available_date);
+                      const month = ('0' + (date.getMonth() + 1)).slice(-2);
+                      const day = ('0' + date.getDate()).slice(-2);
+                      const year = date.getFullYear();
+                      return `${month}-${day}-${year}`;
+                    })()}
+                  </td>
+                  <td className="px-2 py-2 text-left">{drone.approval_requested ? 'Yes' : 'No'}</td>
+                  <td className="px-2 py-2 text-left">{drone.approval_requester ? `${drone.approval_requester.first_name} ${drone.approval_requester.last_name}` : '--'}</td>
+                  <td className="px-2 py-2 text-left">${drone.drone_value}</td>
+                </tr>
+              ))}
+              {paginatedDrones.length < itemsPerPage &&
+                Array.from({ length: itemsPerPage - paginatedDrones.length }).map((_, index) => (
+                  <tr key={`empty-${index}`} className="bg-gray-50 hover:bg-gray-100 border-b border-gray-200 text-[12px]">
+                    <td className="px-2 py-2"></td>
+                    <td className="px-2 py-2 text-left"><p className='invisible'>--</p></td>
+                    <td className="px-2 py-2 text-left"><p className='invisible'>--</p></td>
+                    <td className="px-2 py-2 text-left"><p className='invisible'>--</p></td>
+                    <td className="px-2 py-2 text-left"><p className='invisible'>--</p></td>
+                    <td className="px-2 py-2 text-left"><p className='invisible'>--</p></td>
+                    <td className="px-2 py-2 text-left"><p className='invisible'>--</p></td>
+                    <td className="px-2 py-2 text-left"><p className='invisible'>--</p></td>
+                    <td className="px-2 py-2 text-left"><p className='invisible'>--</p></td>
+                    <td className="px-2 py-2 text-left"><p className='invisible'>--</p></td>
+                    <td className="px-2 py-2 text-left"><p className='invisible'>--</p></td>
+                    <td className="px-2 py-2 text-left"><p className='invisible'>--</p></td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
-  );
-};
+      <div className="flex justify-center mt-4 text-[12px]">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`px-1 py-1 mx-1 ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-black'}`}
+        >
+          Previous
+        </button>
+
+        {currentPage > 1 && (
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            className="px-1 py-1 mx-1 text-black"
+          >
+            {currentPage - 1}
+          </button>
+        )}
+
+        <span className="px-1 py-1 mx-1 font-bold">{currentPage}</span>
+
+        {currentPage < totalPages && (
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            className="px-1 py-1 mx-1 text-black"
+          >
+            {currentPage + 1}
+          </button>
+        )}
+
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`px-1 py-1 mx-1 ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-black'}`}
+        >
+          Next
+        </button>
+      </div>
+          </div>
+        );
+      };
 
 export default DroneList;

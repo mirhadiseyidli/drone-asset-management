@@ -18,10 +18,10 @@ export default function Inventory() {
         <div className='bg-white w-full h-full flex flex-col'>
             <header className="shadow-sm">
                 <div className="flex items-center justify-between px-8 py-4">
-                    <h1 className="text-lg font-bold">Inventory</h1>
+                    <h1 className="text-md font-bold">Inventory</h1>
                     <button 
                         onClick={openModal}
-                        className="flex bg-black text-white px-2.5 py-1.5 rounded text-[10px] items-center justify-center"
+                        className="flex bg-black text-white px-2.5 py-1.5 rounded text-[10px] items-center justify-center hover:bg-gray-700 active:bg-gray-500"
                     >
                         <Image
                             src="/images/add-drone.png"
@@ -34,7 +34,7 @@ export default function Inventory() {
                     </button>
                 </div>
             </header>
-            <div className='flex-grow p-8 bg-gray-50 w-full h-full'>
+            <div className='flex-grow bg-gray-50 w-full h-full'>
                 <DroneList />
             </div>
             <div>

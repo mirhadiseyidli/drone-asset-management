@@ -91,10 +91,11 @@ const getClientId = async (req, res) => {
       { client_key: client_key},
       { new: true, upsert: true }
     );
+    console.log(userCreds)
 
     res.status(200).json({ message: 'Client ID is created' });
   } catch (error) {
-    res.status(400).json({ message: err.message });
+    res.status(400).json({ message: error.message });
   };
 };
 

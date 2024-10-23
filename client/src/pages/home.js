@@ -114,7 +114,7 @@ export default function HomePage() {
         <div className='flex flex-col w-full'>
           <div className='flex flex-row'>
             <div className='flex w-full ml-8 items-center justify-start text-start'>
-              <SearchBar onSearch={handleSearch} />
+              {/* <SearchBar onSearch={handleSearch} /> */}
             </div>
             <div>
               {/* <Notifications /> */}

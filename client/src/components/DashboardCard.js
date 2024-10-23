@@ -11,9 +11,9 @@ export default function DashboardCard({ card_name, amount, monthData, lastMonthD
     };
 
     return (
-        <div className="rounded-lg border bg-card text-card-foreground shadow-sm bg-white">
+        <div className="rounded-lg bg-card text-card-foreground shadow-md bg-white">
             <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
-                <h3 className="whitespace-nowrap tracking-tight text-[12px] font-semibold">{card_name}</h3>
+                <h3 className="whitespace-nowrap tracking-tight text-md font-semibold">{card_name}</h3>
             </div>
             <div className="p-6">
                 <div className="text-md font-bold">{formatAmount(card_name, amount)}</div>

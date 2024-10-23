@@ -98,10 +98,10 @@ const ProfileBar = () => {
                     className='w-36 h-36 rounded-full object-cover bg-white'
                 />
             </button>
-            <div className={`absolute right-0 mt-12 mr-8 p-28 pt-24 pb-10 bg-black shadow-lg bg-opacity-70 backdrop-blur-lg rounded-lg flex flex-col items-center justify-center ${isProfileOpen ? 'max-h-screen opacity-100 translate-y-0 pointer-events-auto' : 'max-h-0 opacity-0 -translate-y-5 pointer-events-none' } z-30`} ref={dropdownRef}>
+            <div className={`absolute right-0 mt-12 mr-8 p-28 pt-24 pb-10 bg-white shadow-md shadow-black rounded-lg flex flex-col items-center justify-center ${isProfileOpen ? 'max-h-screen opacity-100 translate-y-0 pointer-events-auto' : 'max-h-0 opacity-0 -translate-y-5 pointer-events-none' } z-30`} ref={dropdownRef}>
                 {user && (
                 <>
-                    <p className="mb-10 text-white font-semibold text-center whitespace-nowrap">Welcome, {user.first_name} {user.last_name}!</p>
+                    <p className="mb-10 text-black font-semibold text-center whitespace-nowrap">Welcome, {user.first_name} {user.last_name}!</p>
                     <Image
                         src={user.profile_picture}
                         alt="Profile Pic"
@@ -109,10 +109,10 @@ const ProfileBar = () => {
                         height={120}
                         className='w-36 h-36 m-8 mb-10 rounded-full object-cover bg-white'
                     />
-                    <p className="text-white font-semibold text-center">{user.first_name} {user.last_name}</p>
-                    <p className="text-white text-sm text-center">{user.email}</p>
-                    <button onClick={handleProfile} className="mt-6 mb-10 px-12 py-2 border bg-white border-white rounded-lg font-bold text-lg hover:bg-gray-200 active:bg-gray-400 text-black cursor-pointer z-40">Profile</button>
-                    <button onClick={handleLogout} className="mt-4 text-sm text-blue-300 hover:underline cursor-pointer z-1">Logout</button>
+                    <p className="text-black font-semibold text-center">{user.first_name} {user.last_name}</p>
+                    <p className="text-black text-sm text-center">{user.email}</p>
+                    <button onClick={handleProfile} className="mt-6 mb-10 px-12 py-2 border bg-black border-black rounded-lg font-bold text-lg hover:bg-gray-700 active:bg-gray-500 text-white cursor-pointer z-40">Profile</button>
+                    <button onClick={handleLogout} className="mt-4 text-sm text-blue-700 hover:underline cursor-pointer z-1">Logout</button>
                 </>
                 )}
             </div>
